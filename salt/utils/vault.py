@@ -295,6 +295,7 @@ def make_request(
     resource,
     token=None,
     vault_url=None,
+    namespace=None,
     get_token_url=False,
     retry=False,
     **args
