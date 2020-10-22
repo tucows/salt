@@ -60,7 +60,7 @@ def generate_token(
     try:
         config = __opts__.get("vault", {})
         verify = config.get("verify", None)
-        # Vault Enterprise requires a namespace 
+        # Vault Enterprise requires a namespace
         namespace = config.get("namespace", None)
         # Allow disabling of minion provided values via the master
         allow_minion_override = config["auth"].get("allow_minion_override", False)
@@ -80,11 +80,10 @@ def generate_token(
                 if "secret_id" in config["auth"]:
                     payload["secret_id"] = config["auth"]["secret_id"]
                 # Vault Enterprise call requires headers
+                headers = None
                 if namespace is not None:
                     headers = {"X-Vault-Namespace": namespace}
-                    response = requests.post(url, headers=headers, json=payload, verify=verify)
-                else:
-                    response = requests.post(url, json=payload, verify=verify)
+                response = requests.post(url, headers=headers, json=payload, verify=verify)
                 if response.status_code != 200:
                     return {"error": response.reason}
                 config["auth"]["token"] = response.json()["auth"]["client_token"]
@@ -125,6 +124,7 @@ def generate_token(
             "url": config["url"],
             "verify": verify,
             "token_backend": storage_type,
+            "namespace": namespace,
         }
         if uses >= 0:
             ret["uses"] = uses
@@ -283,7 +283,7 @@ def _selftoken_expired():
     """
     try:
         verify = __opts__["vault"].get("verify", None)
-        # Vault Enterprise requires a namespace 
+        # Vault Enterprise requires a namespace
         namespace = __opts__["vault"].get("namespace", None)
         url = "{0}/v1/auth/token/lookup-self".format(__opts__["vault"]["url"])
         if "token" not in __opts__["vault"]["auth"]:
